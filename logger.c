@@ -5,6 +5,9 @@ void logger(int type, char *s1, char *s2, int socket_fd) {
 	char logbuffer[BUFSIZE*2];
 
 	switch(type) {
+		case LOG:
+			sprintf(logbuffer, "LOG: %s : %s", s1, s2);
+			break;
 		case ERROR:
 			// TODO
 			break;
@@ -12,9 +15,6 @@ void logger(int type, char *s1, char *s2, int socket_fd) {
 			// TODO
 			break;
 		case FORBIDDEN:
-			// TODO
-			break;
-		case LOG:
 			// TODO
 			break;
 	}
