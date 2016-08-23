@@ -1,6 +1,6 @@
 #include "logger.h"
 
-void logger(int type, char *s1, char *s2, int socket_fd) {
+void logger(int type, char *s1, char *s2) {
 	int fd;
 	char logbuffer[BUFSIZE*2];
 
@@ -9,13 +9,13 @@ void logger(int type, char *s1, char *s2, int socket_fd) {
 			sprintf(logbuffer, "LOG: %s : %s", s1, s2);
 			break;
 		case ERROR:
-			// TODO
+			sprintf(logbuffer, "500 INTERNAL SERVER ERROR: %s : %s", s1, s2);
 			break;
 		case NOTFOUND:
-			// TODO
+			sprintf(logbuffer, "404 NOTFOUND: %s : %s", s1, s2);
 			break;
 		case FORBIDDEN:
-			// TODO
+			sprintf(logbuffer, "403 FORBIDDEN: %s : %s", s1, s2);
 			break;
 	}
 
