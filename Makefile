@@ -1,7 +1,7 @@
-SOURCE := grocery.c logger.c
+SOURCE := grocery.c logger.c error_handler.c
 
 CC := gcc
-CFLAGS := -Wextra -Wall -Werror
+CFLAGS := -Wextra -Wall
 DEBUG := -g
 
 debug:
