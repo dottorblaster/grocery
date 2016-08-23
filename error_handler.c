@@ -1,7 +1,7 @@
 #include "error_handler.h"
 
 void handle_error(int type, int socket_fd) {
-  switch(type) {
+	switch(type) {
 		case ERROR:
 			write(socket_fd, "HTTP/1.1 403 Forbidden\nContent-Length: 185\nConnection: close\nContent-Type: text/html\n\n<html><head>\n<title>403 Forbidden</title>\n</head><body>\n<h1>Internal Server Error</h1>\nOperation gone bad. Sorry.\n</body></html>\n", 215);
 			break;
@@ -12,4 +12,6 @@ void handle_error(int type, int socket_fd) {
 			write(socket_fd, "HTTP/1.1 403 Forbidden\nContent-Length: 185\nConnection: close\nContent-Type: text/html\n\n<html><head>\n<title>403 Forbidden</title>\n</head><body>\n<h1>Forbidden</h1>\nThe requested URL, file type or operation is not allowed on this simple static file webserver.\n</body></html>\n", 271);
 			break;
 	}
+
+	exit(3);
 }
