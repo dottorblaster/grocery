@@ -1,4 +1,4 @@
-SOURCE := grocery.c logger.c error_handler.c
+SOURCE := grocery.c logger.c error_handler.c request_handler.c
 
 CC := gcc
 CFLAGS := -Wextra -Wall
