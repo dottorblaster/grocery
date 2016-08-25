@@ -6,16 +6,16 @@ void logger(int type, char *s1, char *s2) {
 
 	switch(type) {
 		case LOG:
-			sprintf(logbuffer, "LOG: %s : %s", s1, s2);
+			sprintf(logbuffer, "LOG: %s: %s", s1, s2);
 			break;
 		case ERROR:
-			sprintf(logbuffer, "500 INTERNAL SERVER ERROR: %s : %s", s1, s2);
+			sprintf(logbuffer, "500 INTERNAL SERVER ERROR: %s: %s", s1, s2);
 			break;
 		case NOTFOUND:
-			sprintf(logbuffer, "404 NOTFOUND: %s : %s", s1, s2);
+			sprintf(logbuffer, "404 NOTFOUND: %s: %s", s1, s2);
 			break;
 		case FORBIDDEN:
-			sprintf(logbuffer, "403 FORBIDDEN: %s : %s", s1, s2);
+			sprintf(logbuffer, "403 FORBIDDEN: %s: %s", s1, s2);
 			break;
 	}
 
