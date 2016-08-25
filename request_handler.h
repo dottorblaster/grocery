@@ -8,4 +8,3 @@
 #include "globals.h"
 
 void request_handler(int fd);
-
