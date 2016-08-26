@@ -6,5 +6,6 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include "globals.h"
+#include "error_handler.h"
 
 void request_handler(int fd);
