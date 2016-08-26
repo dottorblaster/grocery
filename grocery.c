@@ -2,20 +2,23 @@
 
 void print_help() {
 	printf("This is a simple help string");
-	exit(0);
 }
 
 void preliminary_checks(int argc, char **argv) {
 	if (argc != 2 || !strcmp(argv[1], "-h")) {
 		print_help();
+		exit(0);
 	}
 	if (atoi(argv[1]) < 0 || atoi(argv[1]) > 60000) {
 		logger(ERROR, "Invalid port number", argv[1]);
+		exit(0);
 	}
+	// TODO
+	// Check if the 'www' subdir exists and it is readable
 }
 
 void spawn_server(char **argv) {
-	int i, pid, port, lfd, sock_fd;
+	int i, pid, lfd, sock_fd;
 	static struct sockaddr_in cli;
 	static struct sockaddr_in server;
 
@@ -33,15 +36,20 @@ void spawn_server(char **argv) {
 	if (bind(lfd, (struct sockaddr *)&server, sizeof(server)) < 0) { logger(ERROR, "Error during a syscall", "bind()"); }
 	if (listen(lfd, 64) < 0) { logger(ERROR, "Error during a syscall", "listen()"); }
 
+	printf("grocery listening on port %s\n", argv[1]);
+
 	for (;;) {
 		l = sizeof(cli);
 
 		if ((sock_fd = accept(lfd, (struct sockaddr *)&cli, &l)) < 0) { logger(ERROR, "Error during a syscall", "accept"); }
-		if ((pid = fork()) < 0) { logger(ERROR, "Error during a syscall", "fork()"); }
 
-		close(lfd);
-		if (pid == 0) {
-			request_handler(sock_fd);
+		if ((pid = fork()) < 0) {
+			logger(ERROR, "Error during a syscall", "fork()");
+		}
+		else {
+			if (pid == 0) {
+				request_handler(sock_fd);
+			}
 		}
 	}
 }

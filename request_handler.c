@@ -1,5 +1,5 @@
 #include "request_handler.h"
 
-void request_handler(int fd) {
+void request_handler(int sock_fd) {
   // TODO
 };

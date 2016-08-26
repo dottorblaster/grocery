@@ -1,6 +1,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <sys/types.h>
+#include <dirent.h>
 #include <netinet/in.h>
 #include "globals.h"
 #include "logger.h"

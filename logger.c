@@ -20,6 +20,7 @@ void logger(int type, char *s1, char *s2) {
 	}
 
 	if ((fd = open("grocery.log", O_CREAT | O_WRONLY | O_APPEND, 0644)) >= 0) {
+		printf("%s\n", logbuffer);
 		write(fd, logbuffer, strlen(logbuffer));
 		write(fd, "\n", 1);
 		close(fd);
