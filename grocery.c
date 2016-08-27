@@ -13,8 +13,10 @@ void preliminary_checks(int argc, char **argv) {
 		logger(ERROR, "Invalid port number", argv[1]);
 		exit(0);
 	}
-	// TODO
-	// Check if the 'www' subdir exists and it is readable
+	if (access("./www", F_OK | R_OK) != 0) {
+		logger(ERROR, "Subdirectory 'www' does not exist", "check that");
+		exit(0);
+	}
 }
 
 void spawn_server(char **argv) {
