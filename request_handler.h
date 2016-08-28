@@ -7,5 +7,7 @@
 #include <arpa/inet.h>
 #include "globals.h"
 #include "error_handler.h"
+#include "headers.h"
 
+char * whichreq(char *buf);
 void request_handler(int fd);
