@@ -6,8 +6,28 @@ char * whichreq(char *buf) {
 	return "other";
 }
 
-void handle_get(int sock_fd, char *buf, hcontainer *headers) {
-	/* code */
+void handle_get(int sock_fd, char *buf, char *ext, hcontainer *headers) {
+	int fle;
+	long ln, rt;
+	char fn[sizeof(buf) + 6];
+
+	strcpy(fn, "./www/");
+	strcat(fn, &buf[5]);
+	if ((fle = open(fn, O_RDONLY)) == -1) {
+		logger(NOTFOUND, "not found:", &buf[5]);
+	}
+	logger(LOG, "GET", &buf[5]);
+	ln = (long)lseek(fle, (off_t)0, SEEK_END);
+	lseek(fle, (off_t)0, SEEK_SET);
+	sprintf(buf,"HTTP/1.1 200 OK\nServer: grocery/%d.0\nContent-Length: %ld\nConnection: keep-alive\nContent-Type: %s\n\n", VERSION, ln, ext);
+
+	while ((rt = read(fle, buf, BUFSIZE)) > 0) {
+		write(sock_fd, buf, rt);
+	}
+
+	sleep(1);
+	// close(sock_fd);
+	exit(1);
 }
 
 void handle_head(int sock_fd, char *buf) {
@@ -18,7 +38,7 @@ void request_handler(int sock_fd) {
 	int sup, hlen;
 	long rt, ln, i;
 	static char buf[BUFSIZE+1];
-	char *method;
+	char *method, *ext;
 
 	hcontainer headers[3];
 
@@ -69,6 +89,7 @@ void request_handler(int sock_fd) {
 	for (i = 0; extensions[i].ext != 0; i++) {
 		ln = strlen(extensions[i].ext);
 		if (!strncmp(&buf[strlen(buf)-ln], extensions[i].ext, ln)) {
+			ext = extensions[i].filetype;
 			sup = 1;
 		}
 	}
@@ -79,7 +100,7 @@ void request_handler(int sock_fd) {
 
 	method = whichreq(buf);
 	if (!strncmp(&method[0], "get", 3)) {
-		//handle_get(/* params here */);
+		handle_get(sock_fd, buf, ext, headers);
 	} else if (!strncmp(&method[0], "head", 4)) {
 		//handle_head(/* params here */);
 	} else {

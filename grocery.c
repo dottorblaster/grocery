@@ -20,7 +20,7 @@ void preliminary_checks(int argc, char **argv) {
 }
 
 void spawn_server(char **argv) {
-	int i, pid, lfd, sock_fd;
+	int pid, lfd, sock_fd;
 	static struct sockaddr_in cli;
 	static struct sockaddr_in server;
 
