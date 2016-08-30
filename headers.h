@@ -9,3 +9,4 @@ typedef struct {
 } hcontainer;
 
 int headers_l(char *buf);
+char * hlook(char *label, char *buf);

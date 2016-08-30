@@ -7,6 +7,7 @@
 #include <arpa/inet.h>
 #include "globals.h"
 #include "error_handler.h"
+#include "logger.h"
 #include "headers.h"
 
 char * whichreq(char *buf);
