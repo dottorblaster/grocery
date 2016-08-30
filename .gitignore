@@ -32,3 +32,8 @@ grocery
 # Debug files
 *.dSYM/
 *.su
+*.log
+
+# Directories
+www
+
