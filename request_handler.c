@@ -15,11 +15,13 @@ void handle_get(int sock_fd, char *buf, char *ext, hcontainer *headers) {
 	strcat(fn, &buf[5]);
 	if ((fle = open(fn, O_RDONLY)) == -1) {
 		logger(NOTFOUND, "not found:", &buf[5]);
+		handle_error(NOTFOUND, sock_fd);
 	}
 	logger(LOG, "GET", &buf[5]);
 	ln = (long)lseek(fle, (off_t)0, SEEK_END);
 	lseek(fle, (off_t)0, SEEK_SET);
 	sprintf(buf,"HTTP/1.1 200 OK\nServer: grocery/%d.0\nContent-Length: %ld\nConnection: keep-alive\nContent-Type: %s\n\n", VERSION, ln, ext);
+	write(sock_fd, buf, strlen(buf));
 
 	while ((rt = read(fle, buf, BUFSIZE)) > 0) {
 		write(sock_fd, buf, rt);
