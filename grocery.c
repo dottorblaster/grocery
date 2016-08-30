@@ -20,7 +20,7 @@ void preliminary_checks(int argc, char **argv) {
 }
 
 void spawn_server(char **argv) {
-	int pid, lfd, sock_fd;
+	int pid, lfd, sock_fd, optv;
 	static struct sockaddr_in cli;
 	static struct sockaddr_in server;
 
@@ -34,7 +34,10 @@ void spawn_server(char **argv) {
 	server.sin_addr.s_addr = htonl(INADDR_ANY);
 	server.sin_port = htons(atoi(argv[1]));
 
+	optv = 1;
+	l = sizeof(optv);
 	if((lfd = socket(AF_INET, SOCK_STREAM, 0)) <0) { logger(ERROR, "Error during a syscall", "socket()"); }
+	if (setsockopt(lfd, SOL_SOCKET, SO_KEEPALIVE, &optv, l) < 0) { logger(ERROR, "Error during a syscall", "setsockopt()"); }
 	if (bind(lfd, (struct sockaddr *)&server, sizeof(server)) < 0) { logger(ERROR, "Error during a syscall", "bind()"); }
 	if (listen(lfd, 64) < 0) { logger(ERROR, "Error during a syscall", "listen()"); }
 
