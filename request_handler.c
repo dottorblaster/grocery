@@ -37,7 +37,7 @@ void handle_head(int sock_fd, char *buf) {
 }
 
 void request_handler(int sock_fd) {
-	int sup, hlen;
+	int sup;
 	long rt, ln, i;
 	static char buf[BUFSIZE+1];
 	char *method, *ext;
@@ -68,8 +68,6 @@ void request_handler(int sock_fd) {
 	}
 
 	(rt > 0 && rt < BUFSIZE) ? (buf[rt] = 0) : (buf[0] = 0);
-
-	hlen = headers_l(buf);
 
 	headers[0].key = "Accept";
 	headers[0].val = hlook("Accept:", buf);
