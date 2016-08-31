@@ -29,14 +29,15 @@ void handle_get(int sock_fd, char *buf, char *ext, hcontainer *headers) {
 
 	sleep(1);
 	// close(sock_fd);
-	exit(1);
+	// exit(1);
+	request_handler(sock_fd, 1);
 }
 
 void handle_head(int sock_fd, char *buf) {
 	/* code */
 }
 
-void request_handler(int sock_fd) {
+void request_handler(int sock_fd, int keepalive) {
 	int sup;
 	long rt, ln, i;
 	static char buf[BUFSIZE+1];
@@ -62,19 +63,31 @@ void request_handler(int sock_fd) {
 	};
 
 	rt = read(sock_fd, buf, BUFSIZE);
-	if (rt == -1 || rt == 0) {
+	if (rt == -1) {
 		logger(ERROR, "Error reading request", "read()");
-		handle_error(ERROR, sock_fd);
+		exit(0);
+	}
+	if (rt == 0) {
+		exit(0);
 	}
 
 	(rt > 0 && rt < BUFSIZE) ? (buf[rt] = 0) : (buf[0] = 0);
 
-	headers[0].key = "Accept";
-	headers[0].val = hlook("Accept:", buf);
-	headers[1].key = "Connection";
-	headers[1].val = hlook("Connection:", buf);
-	headers[2].key = "User-Agent";
-	headers[2].val = hlook("User-Agent:", buf);
+	if (keepalive == 0) {
+		headers[0].key = "Accept";
+		headers[0].val = hlook("Accept:", buf);
+		headers[1].key = "Connection";
+		headers[1].val = hlook("Connection:", buf);
+		headers[2].key = "User-Agent";
+		headers[2].val = hlook("User-Agent:", buf);
+	} else {
+		headers[0].key = "Accept";
+		headers[0].val = "";
+		headers[1].key = "Connection";
+		headers[1].val = "";
+		headers[2].key = "User-Agent";
+		headers[2].val = "";
+	}
 
 	for (i=5;i<BUFSIZE;i++) {
 		if(buf[i] == ' ') {
