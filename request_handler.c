@@ -33,8 +33,25 @@ void handle_get(int sock_fd, char *buf, char *ext, hcontainer *headers) {
 	request_handler(sock_fd, 1);
 }
 
-void handle_head(int sock_fd, char *buf) {
-	/* code */
+void handle_head(int sock_fd, char *buf, char *ext) {
+	int fle;
+	long ln;
+	char fn[sizeof(buf) + 6];
+
+	strcpy(fn, "./www/");
+	strcat(fn, &buf[5]);
+	if ((fle = open(fn, O_RDONLY)) == -1) {
+		logger(NOTFOUND, "not found:", &buf[5]);
+		handle_error(NOTFOUND, sock_fd);
+	}
+	logger(LOG, "HEAD", &buf[5]);
+	ln = (long)lseek(fle, (off_t)0, SEEK_END);
+	lseek(fle, (off_t)0, SEEK_SET);
+	sprintf(buf,"HTTP/1.1 200 OK\nServer: grocery/%d.0\nContent-Length: %ld\nConnection: close\nContent-Type: %s\n\n", VERSION, ln, ext);
+	write(sock_fd, buf, strlen(buf));
+
+	sleep(1);
+	exit(0);
 }
 
 void request_handler(int sock_fd, int keepalive) {
@@ -115,7 +132,7 @@ void request_handler(int sock_fd, int keepalive) {
 	if (!strncmp(&method[0], "get", 3)) {
 		handle_get(sock_fd, buf, ext, headers);
 	} else if (!strncmp(&method[0], "head", 4)) {
-		//handle_head(/* params here */);
+		handle_head(sock_fd, buf, ext);
 	} else {
 	//	handle_unsupported_method(/* params here */);
 	}
