@@ -20,7 +20,7 @@ void handle_get(int sock_fd, char *buf, char *ext, hcontainer *headers) {
 	logger(LOG, "GET", &buf[5]);
 	ln = (long)lseek(fle, (off_t)0, SEEK_END);
 	lseek(fle, (off_t)0, SEEK_SET);
-	sprintf(buf,"HTTP/1.1 200 OK\nServer: grocery/%d.0\nContent-Length: %ld\nConnection: keep-alive\nContent-Type: %s\n\n", VERSION, ln, ext);
+	sprintf(buf,"HTTP/1.1 200 OK\nServer: grocery/%d.0\nContent-Length: %ld\nConnection: %s\nContent-Type: %s\n\n", VERSION, ln, (strlen(headers[1].val) != 0 && !strncmp(&headers[1].val[1], "close", 5)) ? "close" : "keep-alive", ext);
 	write(sock_fd, buf, strlen(buf));
 
 	while ((rt = read(fle, buf, BUFSIZE)) > 0) {
@@ -28,9 +28,13 @@ void handle_get(int sock_fd, char *buf, char *ext, hcontainer *headers) {
 	}
 
 	sleep(1);
-	// close(sock_fd);
-	// exit(1);
-	request_handler(sock_fd, 1);
+
+	if (strlen(headers[1].val) != 0 && !strncmp(&headers[1].val[1], "close", 5)) {
+		close(sock_fd);
+		exit(1);
+	} else {
+		request_handler(sock_fd, 1);
+	}
 }
 
 void handle_head(int sock_fd, char *buf, char *ext) {
