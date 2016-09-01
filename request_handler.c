@@ -125,7 +125,7 @@ void request_handler(int sock_fd, int keepalive) {
 			ext = extensions[i].filetype;
 		}
 	}
-	if (strlen(ext)) {
+	if (strlen(ext) == 0) {
 		logger(FORBIDDEN, "File extension not supported", buf);
 		handle_error(FORBIDDEN, sock_fd);
 	}
