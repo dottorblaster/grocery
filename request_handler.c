@@ -59,7 +59,6 @@ void handle_head(int sock_fd, char *buf, char *ext) {
 }
 
 void request_handler(int sock_fd, int keepalive) {
-	int sup;
 	long rt, ln, i;
 	static char buf[BUFSIZE+1];
 	char *method, *ext;
@@ -119,15 +118,14 @@ void request_handler(int sock_fd, int keepalive) {
 	(!strncmp(&buf[0],"GET /\0", 6) || !strncmp(&buf[0],"get /\0", 6)) && (strcpy(buf, "GET /index.html"));
 	(!strncmp(&buf[0],"HEAD /\0", 7) || !strncmp(&buf[0],"head /\0", 7)) && (strcpy(buf, "HEAD /index.html"));
 
-	sup = 0;
+	ext = "";
 	for (i = 0; extensions[i].ext != 0; i++) {
 		ln = strlen(extensions[i].ext);
 		if (!strncmp(&buf[strlen(buf)-ln], extensions[i].ext, ln)) {
 			ext = extensions[i].filetype;
-			sup = 1;
 		}
 	}
-	if (sup == 0) {
+	if (strlen(ext)) {
 		logger(FORBIDDEN, "File extension not supported", buf);
 		handle_error(FORBIDDEN, sock_fd);
 	}
