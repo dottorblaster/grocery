@@ -5,6 +5,3 @@ compiler:
 
 script:
 - make
-
-
-
