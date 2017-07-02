@@ -1,4 +1,6 @@
 SOURCE := grocery.c logger.c error_handler.c request_handler.c headers.c
+BINARY := grocery
+DEBUG_PORT := 8080
 
 CC := gcc
 CFLAGS := -Wextra -Wall
@@ -9,6 +11,9 @@ debug:
 
 release:
 	$(CC) $(SOURCE) $(CFLAGS) -O2 -o grocery
+
+run:
+	./$(BINARY) $(DEBUG_PORT)
 
 all: debug
 
