@@ -18,7 +18,7 @@ char * hlook(char *label, char *buf) {
 		if (!strncmp(&tk[0], label, strlen(label))) {
 			strsep(&tk, ": ");
 			free(dbuf);
-			return tk;
+			return strdup(tk);
 		}
 	}
 	free(dbuf);
