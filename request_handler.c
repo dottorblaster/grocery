@@ -26,7 +26,8 @@ void handle_get(int sock_fd, char *buf, char *ext, hcontainer *headers) {
 	while ((rt = read(fle, buf, BUFSIZE)) > 0) {
 		write(sock_fd, buf, rt);
 	}
-
+	
+	close(fle);
 	sleep(1);
 
 	if (strlen(headers[1].val) != 0 && !strncmp(&headers[1].val[1], "close", 5)) {
