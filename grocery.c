@@ -17,6 +17,10 @@ void preliminary_checks(int argc, char **argv) {
 		logger(ERROR, "Subdirectory 'www' does not exist", "check that");
 		exit(0);
 	}
+	if(access('./cache', F_OK | R_OK) != 0) {
+		logger(LOG, "Subdirectory 'cache' does not exist", "creating");
+		mkdir("./cache", 0700);
+	}
 }
 
 void spawn_server(char **argv) {
