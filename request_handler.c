@@ -6,18 +6,6 @@ char * whichreq(char *buf) {
 	return "other";
 }
 
-int conversion_quality(char *str) {
-	// TODO
-}
-
-int cachehit(char *buf, hcontainer *headers) {
-	char *header, *pbuf;
-	int idx;
-	if (!strcmp(headers[0].val, "")) { return 0; }
-	
-	return 0;
-}
-
 void handle_get(int sock_fd, char *buf, char *ext, hcontainer *headers) {
 	int fle;
 	long ln, rt;

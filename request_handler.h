@@ -9,6 +9,7 @@
 #include "error_handler.h"
 #include "logger.h"
 #include "headers.h"
+#include "conversion.h"
 
 char * whichreq(char *buf);
 void handle_get(int sock_fd, char *buf, char *ext, hcontainer *headers);
