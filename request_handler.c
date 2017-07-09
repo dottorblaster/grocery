@@ -9,7 +9,7 @@ char * whichreq(char *buf) {
 void handle_get(int sock_fd, char *buf, char *ext, hcontainer *headers) {
 	int fle;
 	long ln, rt;
-	char fn[sizeof(buf) + 6];
+	char fn[sizeof(buf) + 11];
 
 	if (cachehit(&buf[5], headers)) {
 		strcpy(fn, "./cache/");
