@@ -1,4 +1,5 @@
 #include <string.h>
+#include "headers.h"
 
 int conversion_quality(char *str);
 int cachehit(char *buf, hcontainer *headers);

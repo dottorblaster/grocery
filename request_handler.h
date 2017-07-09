@@ -8,7 +8,6 @@
 #include "globals.h"
 #include "error_handler.h"
 #include "logger.h"
-#include "headers.h"
 #include "conversion.h"
 
 char * whichreq(char *buf);
