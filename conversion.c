@@ -43,12 +43,28 @@ int conversion_quality(char *header) {
 	return 0;
 }
 
+char * cached_filename(char *buf, int quality) {
+    char *str;
+    char *retval = malloc(sizeof(buf)+4);
+    char quality_s[3];
+
+    str = strdup(buf);
+
+    sprintf(quality_s, "%d", quality);
+    strcat(retval, str);
+    strcat(retval, "-");
+    strcat(retval, quality_s);
+
+    return retval;
+}
+
 int cachehit(char *buf, hcontainer *headers) {
-	char *header;
+	char *header, *cachedfn;
 	int q;
 	if (!strcmp(headers[0].val, "")) { return 0; }
 
 	q = conversion_quality(headers[0].val);
+    cachedfn = cached_filename(buf, q);
 	
 	return 0;
 }
