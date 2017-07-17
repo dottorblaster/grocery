@@ -59,13 +59,29 @@ char * cached_filename(char *buf, int quality) {
 }
 
 int cachehit(char *buf, hcontainer *headers) {
-	char *header, *cachedfn;
+	char *header, *cachedfn, *toaccess;
 	int q;
 	if (!strcmp(headers[0].val, "")) { return 0; }
 
 	q = conversion_quality(headers[0].val);
+    // TODO
+    // if ((q = conversion_quality()) == 0) { return 0; }
     cachedfn = cached_filename(buf, q);
-	
+
+    toaccess = malloc(sizeof(cachedfn)+8);
+    strcat(toaccess, "./cache/");
+	strcat(toaccess, cachedfn);
+
+    if (access(toaccess, F_OK | R_OK) == 0) {
+        logger(LOG, "Cache hit!", "serving the cached file");
+        // TODO
+        // Serve the cached file
+	} else {
+        logger(LOG, "Cache didn't hit", "still need to convert the file");
+        // TODO
+        // Convert the file, then serve
+    }
+
 	return 0;
 }
 

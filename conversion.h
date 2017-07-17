@@ -1,4 +1,6 @@
 #include <string.h>
+#include <unistd.h>
+#include "logger.h"
 #include "headers.h"
 
 int conversion_quality(char *str);
