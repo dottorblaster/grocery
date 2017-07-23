@@ -81,9 +81,41 @@ int cachehit(char *buf, hcontainer *headers) {
 	return 1;
 }
 
+char * build_convert_cmd(char *source, char *dest, int quality) {
+    char *cmd = malloc(sizeof(source)+sizeof(dest)+21);
+    char quality_str[2];
+
+    sprintf(quality_str, "%d", quality);
+
+    strcpy(cmd, "convert");
+    strcat(cmd, " ");
+    strcat(cmd, source);
+    strcat(cmd, " ");
+    strcat(cmd, "-quality");
+    strcat(cmd, " ");
+    strcat(cmd, quality_str);
+    strcat(cmd, " ");
+    strcat(cmd, dest);
+
+    return cmd;
+}
+
 int convert_img(char *source, char *dest, int quality) {
-    // TODO
-    // wrap the convert executable in an execp
-    // source, destination and quality
-    // are given as params
+    char *www_src, *cache_dest, *cmd;
+
+    www_src = malloc(sizeof(source)+6);
+    strcpy(www_src, "./www/");
+	strcat(www_src, source);
+
+    cache_dest = malloc(sizeof(dest)+8);
+    strcpy(cache_dest, "./cache/");
+	strcat(cache_dest, dest);
+
+    cmd = build_convert_cmd(www_src, cache_dest, quality);
+
+    logger(LOG, "RUNNING", cmd);
+
+    system(cmd);
+
+    return 1;
 }
