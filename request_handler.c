@@ -19,9 +19,10 @@ void handle_get(int sock_fd, char *buf, char *ext, hcontainer *headers) {
 		strcat(fn, &buf[5]);
 	}
 	if ((fle = open(fn, O_RDONLY)) == -1) {
-		logger(NOTFOUND, "not found:", &buf[5]);
+		logger(NOTFOUND, "not found", &buf[5]);
 		handle_error(NOTFOUND, sock_fd);
 	}
+
 	logger(LOG, "GET", &buf[5]);
 	ln = (long)lseek(fle, (off_t)0, SEEK_END);
 	lseek(fle, (off_t)0, SEEK_SET);
