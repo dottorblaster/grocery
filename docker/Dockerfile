@@ -6,4 +6,4 @@ RUN apk add alpine-sdk imagemagick
 RUN mkdir /grocery
 ADD . /grocery
 WORKDIR /grocery
-RUN make
+RUN make clean release
