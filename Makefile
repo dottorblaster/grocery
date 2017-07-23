@@ -22,7 +22,7 @@ build_docker_test:
 	sudo docker build -t grocery_test -f docker/Dockerfile.test .
 
 docker_test:
-	sudo docker run -P -p 8080:8080 --name grtest -v $(shell pwd):/grocery grocery_test \
+	sudo docker run -d -P -p 8080:8080 --name grtest -v $(shell pwd):/grocery grocery_test \
 		make debug run
 
 all: debug
