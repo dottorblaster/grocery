@@ -34,6 +34,12 @@ grocery
 *.su
 *.log
 
+# Mac DS_Store (wtf)
+.DS_Store
+
+# Editor related stuff
+.vscode
+
 # Directories
 www
 cache
