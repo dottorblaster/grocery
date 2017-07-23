@@ -122,8 +122,12 @@ void request_handler(int sock_fd, int keepalive) {
 			break;
 		}
 	}
-	(!strncmp(&buf[0],"GET /\0", 6) || !strncmp(&buf[0],"get /\0", 6)) && (strcpy(buf, "GET /index.html"));
-	(!strncmp(&buf[0],"HEAD /\0", 7) || !strncmp(&buf[0],"head /\0", 7)) && (strcpy(buf, "HEAD /index.html"));
+	if (!strncmp(&buf[0],"GET /\0", 6) || !strncmp(&buf[0],"get /\0", 6)) {
+		strcpy(buf, "GET /index.html");
+	}
+	if (!strncmp(&buf[0],"HEAD /\0", 7) || !strncmp(&buf[0],"head /\0", 7)) {
+		strcpy(buf, "HEAD /index.html");
+	}
 
 	ext = "";
 	for (i = 0; extensions[i].ext != 0; i++) {
