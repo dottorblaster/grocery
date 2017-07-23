@@ -66,4 +66,6 @@ void spawn_server(char **argv) {
 int main(int argc, char **argv) {
 	preliminary_checks(argc, argv);
 	spawn_server(argv);
+	
+	return 0;
 }
