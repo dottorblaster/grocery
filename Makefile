@@ -1,4 +1,4 @@
-SOURCE := ./*.c
+SOURCE := ./src/*.c
 BINARY := grocery
 DEBUG_PORT := 8080
 
