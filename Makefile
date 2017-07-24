@@ -1,4 +1,4 @@
-SOURCE := grocery.c logger.c error_handler.c request_handler.c headers.c conversion.c
+SOURCE := ./*.c
 BINARY := grocery
 DEBUG_PORT := 8080
 
