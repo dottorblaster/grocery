@@ -83,19 +83,16 @@ int cachehit(char *buf, hcontainer *headers) {
 
 char * build_convert_cmd(char *source, char *dest, int quality) {
     char *cmd = malloc(sizeof(source)+sizeof(dest)+21);
-    char quality_str[2];
 
-    sprintf(quality_str, "%d", quality);
-
-    strcpy(cmd, "convert");
-    strcat(cmd, " ");
-    strcat(cmd, source);
-    strcat(cmd, " ");
-    strcat(cmd, "-quality");
-    strcat(cmd, " ");
-    strcat(cmd, quality_str);
-    strcat(cmd, " ");
-    strcat(cmd, dest);
+    sprintf(
+        cmd,
+        "%s %s %s %d %s",
+        "convert",
+        source,
+        "-quality",
+        quality,
+        dest
+    );
 
     return cmd;
 }
