@@ -1,6 +1,6 @@
 #include "conversion.h"
 
-int is_image_jpeg(char *tok) {
+int is_image(char *tok) {
     if (!strncmp(&tok[0], "image/jpeg", strlen("image/jpeg"))) {
         return 1;
     }
@@ -11,6 +11,12 @@ int is_image_jpeg(char *tok) {
         return 1;
     }
     if (!strncmp(&tok[1], "image/jpg", strlen("image/jpg"))) {
+        return 1;
+    }
+    if (!strncmp(&tok[0], "image/png", strlen("image/png"))) {
+        return 1;
+    }
+    if (!strncmp(&tok[1], "image/png", strlen("image/png"))) {
         return 1;
     }
     return 0;
@@ -30,7 +36,7 @@ int conversion_quality(char *header) {
 
     dbuf = str = strdup(header);
     while ((tok = strsep(&str, ",")) != NULL) {
-        if (is_image_jpeg(tok) && has_quality(tok)) {
+        if (is_image(tok) && has_quality(tok)) {
             strsep(&tok, ";q=");
             tok += 2;
             quality = atof(tok)*100;

@@ -3,7 +3,7 @@
 #include "logger.h"
 #include "headers.h"
 
-int is_image_jpeg(char *tok);
+int is_image(char *tok);
 int has_quality(char *tok);
 int conversion_quality(char *str);
 char * cached_filename(char *buf, int quality);
