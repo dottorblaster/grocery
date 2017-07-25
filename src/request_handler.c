@@ -11,7 +11,7 @@ void handle_get(int sock_fd, char *buf, char *ext, hcontainer *headers) {
 	long ln, rt;
 	char fn[sizeof(buf) + 11];
 
-	if (cachehit(&buf[5], headers)) {
+	if (is_image(ext) && cachehit(&buf[5], headers)) {
 		strcpy(fn, "./cache/");
 		strcat(fn, &buf[5]);
 	} else {

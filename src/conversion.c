@@ -76,6 +76,8 @@ int cachehit(char *buf, hcontainer *headers) {
     strcpy(toaccess, "./cache/");
 	strcat(toaccess, cachedfn);
 
+    printf("%s\n", toaccess);
+
     if (access(toaccess, F_OK | R_OK) == 0) {
         logger(LOG, "Cache hit!", "serving the cached file");
 	} else {
@@ -87,34 +89,16 @@ int cachehit(char *buf, hcontainer *headers) {
 	return 1;
 }
 
-char * build_convert_cmd(char *source, char *dest, int quality) {
-    char *cmd = malloc(sizeof(source)+sizeof(dest)+21);
+int convert_img(char *source, char *dest, int quality) {
+    char cmd[sizeof(source)+sizeof(dest)+211];
 
     sprintf(
         cmd,
-        "%s %s %s %d %s",
-        "convert",
+        "convert ./www/%s -quality %d ./cache/%s",
         source,
-        "-quality",
         quality,
         dest
     );
-
-    return cmd;
-}
-
-int convert_img(char *source, char *dest, int quality) {
-    char *www_src, *cache_dest, *cmd;
-
-    www_src = malloc(sizeof(source)+6);
-    strcpy(www_src, "./www/");
-	strcat(www_src, source);
-
-    cache_dest = malloc(sizeof(dest)+8);
-    strcpy(cache_dest, "./cache/");
-	strcat(cache_dest, dest);
-
-    cmd = build_convert_cmd(www_src, cache_dest, quality);
 
     logger(LOG, "RUNNING", cmd);
 
