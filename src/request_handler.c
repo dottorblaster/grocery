@@ -45,8 +45,12 @@ void handle_get(int sock_fd, char *buf, char *ext, hcontainer *headers) {
 
 	if (strlen(headers[1].val) != 0 && !strncmp(&headers[1].val[1], "close", 5)) {
 		close(sock_fd);
+		free(headers);
+		free(ext);
 		exit(1);
 	} else {
+		free(headers);
+		free(ext);
 		request_handler(sock_fd, 1);
 	}
 }
