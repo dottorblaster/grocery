@@ -58,6 +58,8 @@ void spawn_server(char **argv) {
 		else {
 			if (pid == 0) {
 				request_handler(sock_fd, 0);
+			} else {
+				close(sock_fd);
 			}
 		}
 	}
