@@ -1,7 +1,7 @@
 FROM alpine:3.6
 
 RUN apk update
-RUN apk add alpine-sdk imagemagick
+RUN apk add --no-cache build-base imagemagick
 
 RUN mkdir /grocery
 RUN mkdir /grocery/www
@@ -11,6 +11,8 @@ ADD . /grocery
 
 WORKDIR /grocery
 RUN make clean release
+
+RUN apk del build-base
 
 VOLUME /grocery/www
 
