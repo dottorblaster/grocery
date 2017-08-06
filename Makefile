@@ -18,6 +18,9 @@ run:
 build_docker:
 	sudo docker build -t grocery -f docker/Dockerfile .
 
+docker_run:
+	sudo docker run -d -P -p 8080:8080 -v $(shell pwd)/www:/grocery/www grocery
+
 build_docker_test:
 	sudo docker build -t grocery_test -f docker/Dockerfile.test .
 
