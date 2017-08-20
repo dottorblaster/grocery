@@ -29,7 +29,9 @@ docker_test:
 		make debug run
 
 markdown_to_pdf:
-	pandoc -o docs/relazione.pdf docs/report_it.md
+	pandoc -o docs/relazione.pdf docs/report_it.md \
+	-V colorlinks -V mainfont:arial -V monofont:menlo -V fontsize="12pt" \
+	--latex-engine=lualatex
 
 all: debug
 
