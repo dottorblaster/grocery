@@ -11,7 +11,17 @@ Il codice è stato suddiviso il tutto in una serie di entità logiche basate su 
 Il risultato di questo approccio è un singolo binario, una volta soddisfatte le dipendenze di compilazione illustrate più avanti, che una volta avviato fa `bind` di un socket su una determinata porta ed è pronto, in ascolto, a ricevere richieste alle quali rispondere in modo opportuno. Come da specifiche, inoltre, è stato implementato un meccanismo di **conversione adattiva di contenuti statici** in copie con qualità inferiore, per consentire un risparmio di banda non indifferente agli utenti, facente uso di un meccanismo di caching in grado di ridurre l'overhead della conversione in caso di richiesta di un'immagine già convertita precedentemente.
 
 ## Architettura
-Lorem ipsum
+L'architettura generale di Grocery si basa su cinque punti fondamentali elencati di seguito:
+
+- Un **processo principale**, che esegue il `bind` sulla porta passata come parametro all'eseguibile del server;
+- Un **processo figlio** che viene creato per ogni richiesta ricevuta tramite una chiamata di sistema `fork`;
+- Un **request handler**, all'interno del processo figlio, che analizza la richiesta e la processa adeguatamente smistandola all'opportuna funzione che si occuperà poi di identificare eventuali errori e restituire il contenuto in una risposta `HTTP` valida.
+- Un **caching layer** che fa uso del filesystem per persistere le immagini di cui è stata abbassata la qualità rispetto all'originale, mediante l'header `Accept` in capo alla richiesta;
+- Il **programma *convert***, all'interno della suite Imagemagick, che si occupa di abbassare la qualità delle immagini di una data percentuale se viene fatta opportuna richiesta tramite l'header `HTTP` `Accept`.
+
+Cenni generali sull'architettura, cenni sull'implementazione dei supported methods
+
+![Diagramma architetturale del ciclo di vita applicativo](./img/grocery_diagram.png)
 
 ## Implementazione
 Lorem ipsum
