@@ -19,15 +19,24 @@ L'architettura generale di Grocery si basa su cinque punti fondamentali elencati
 - Un **caching layer** che fa uso del filesystem per persistere le immagini di cui è stata abbassata la qualità rispetto all'originale, mediante l'header `Accept` in capo alla richiesta;
 - Il **programma *convert***, all'interno della suite Imagemagick, che si occupa di abbassare la qualità delle immagini di una data percentuale se viene fatta opportuna richiesta tramite l'header `HTTP` `Accept`.
 
+![Diagramma architetturale del ciclo di vita applicativo](./docs/img/grocery_diagram.png)
+
 Cenni generali sull'architettura, cenni sull'implementazione dei supported methods
 
-![Diagramma architetturale del ciclo di vita applicativo](./img/grocery_diagram.png)
+Il fatto di istanziare un processo figlio tramite `fork` per ogni richiesta è una scelta tattica. Pur non essendo resiliente come un webserver con prefork di ultima generazione che fa back-pressure su un pool di processi figli a cui vengono assegnate le richieste da consumare, questo metodo permette di conservare le funzionalità di un webserver senza complicarne l'architettura di base, permettendo quindi di concentrarsi su altri aspetti che al fine di fornire le funzionalità richieste risultano maggiormente cruciali, come il parsing degli header e lo smistamento delle richieste con header opportuno allla suite ImageMagick.
+
+Il layer di caching è architettato secondo il medesimo principio, facendo uso del filesystem per la persistenza con un meccanismo di correlazione tra file di partenza e file di destinazione basato su filename, del quale viene fatto un precalcolo in un dato momento in modo da poter poi verificare l'esistenza o meno di una copia in cache. Il meccanismo di naming della copia in cache deriva direttamente dagli header di cui viene fatto il parsing attraverso una specifica funzione che restituisce una struttura dati popolata con il valore degli header necessari al funzionamento di Grocery, e le opportune chiavi.
+
+Una parte che merita una menzione speciale è la logica in base alla quale vengono gestiti gli handler specifici per i vari metodi HTTP. In particolare, il request handler è stato architettato in modo da essere facilmente estendibile con nuovi metodi, e per poter portare ad uno stadio futuro più avanzato l'odierno supporto minimale ad `HTTP 1.1`. Allo stato attuale si possono utilizzare solo GET e HEAD, mentre il resto dei metodi daranno luogo ad un errore gestito tramite un particolare handler denominato `unsupported_method`.
 
 ## Implementazione
 Lorem ipsum
 
 ## Limitazioni riscontrate
+Lorem ipsum
 
 ## Piattaforma
+Lorem ipsum
 
 ## Installazione e configurazione
+Lorem ipsum
