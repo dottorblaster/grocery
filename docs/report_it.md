@@ -30,7 +30,82 @@ Il layer di caching è architettato secondo il medesimo principio, facendo uso d
 Una parte che merita una menzione speciale è la logica in base alla quale vengono gestiti gli handler specifici per i vari metodi HTTP. In particolare, il request handler è stato architettato in modo da essere facilmente estendibile con nuovi metodi, e per poter portare ad uno stadio futuro più avanzato l'odierno supporto minimale ad `HTTP 1.1`. Allo stato attuale si possono utilizzare solo GET e HEAD, mentre il resto dei metodi daranno luogo ad un errore gestito tramite un particolare handler denominato `unsupported_method`.
 
 ## Implementazione
-Lorem ipsum
+A livello implementativo, Grocery non è molto più che ciò che è stato descritto a livello architetturale. La funzione main che dà origine al programma è stata divisa in due funzioni, una che fa lo spawn del server e una parte di controlli preliminari, preposta a guardia del ciclo di vita applicativo, che secondo la tecnica di programmazione difensiva, non fa altro che accertarsi che l'ambiente dove viene fatto girare l'eseguibile abbia tutte le carte in regola per funzionare.
+
+```c
+int main(int argc, char **argv) {
+	preliminary_checks(argc, argv);
+	spawn_server(argv);
+	
+	return 0;
+}
+```
+
+Segue un esempio dei check preliminari con relativo incapsulamento nella rispettiva funzione di responsabilità:
+
+```c
+void preliminary_checks(int argc, char **argv) {
+	if (argc != 2 || !strcmp(argv[1], "-h")) {
+		print_help();
+		exit(0);
+	}
+	[...]
+}
+```
+
+All'interno della funzione `spawn_server` viene eseguito il bind del socket, e successivamente vengono eseguite le chiamate di sistema che permettono agli handler di essere eseguiti per rispondere alle connessioni `TCP` in maniera congrua. Il sorgente riportato qui di seguito è una versione modificata rispetto all'originale, che ha lo scopo solo di illustrare in linea di massima l'implementazione. È da notare la gestione degli errori inline per tutte le syscall dato che questa è la parte maggiormente _mission-critical_, nonché l'uso del logger personalizzato scritto appositamente in un modulo a parte.
+
+```c
+void spawn_server(char **argv) {
+	[...]
+
+	server.sin_family = AF_INET;
+	server.sin_addr.s_addr = htonl(INADDR_ANY);
+	server.sin_port = htons(atoi(argv[1]));
+
+	optv = 1;
+	l = sizeof(optv);
+	if((lfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+		logger(ERROR, "Error during a syscall", "socket()");
+	}
+	if (setsockopt(lfd, SOL_SOCKET, SO_KEEPALIVE, &optv, l) < 0) {
+		logger(ERROR, "Error during a syscall", "setsockopt()");
+	}
+	if (bind(lfd, (struct sockaddr *)&server, sizeof(server)) < 0) {
+		logger(ERROR, "Error during a syscall", "bind()");
+	}
+	if (listen(lfd, 64) < 0) {
+		logger(ERROR, "Error during a syscall", "listen()");
+	}
+	[...]
+}
+```
+
+E successivamente sempre all'interno della stessa funzione possiamo osservare come venga effettuato il `fork` tra processi. Il processo padre resta a gestire le nuove richieste in entrata, mentre il processo figlio entra nel suo personale ciclo di vita che lo porterà a gestire la richiesta e a terminare. La parte di `if-else` poteva essere scritta in maniera più elegante, facendo anche uso di ternary operator i quali tramite `gcc -O3` producono anche un [codice macchina migliore](http://www.nynaeve.net/?p=178) sulle CPU Intel.
+
+```c
+void spawn_server(char **argv) {
+	[...]
+	for (;;) {
+		l = sizeof(cli);
+
+		if ((sock_fd = accept(lfd, (struct sockaddr *)&cli, &l)) < 0) {
+			logger(ERROR, "Error during a syscall", "accept");
+		}
+
+		if ((pid = fork()) < 0) {
+			logger(ERROR, "Error during a syscall", "fork()");
+		}
+		else {
+			if (pid == 0) {
+				request_handler(sock_fd, 0);
+			} else {
+				close(sock_fd);
+			}
+		}
+	}
+}
+```
 
 ## Limitazioni riscontrate
 Lorem ipsum
