@@ -30,8 +30,8 @@ docker_test:
 
 markdown_to_pdf:
 	pandoc -o docs/relazione.pdf docs/report_it.md \
-	-V colorlinks -V mainfont:arial -V monofont:menlo -V fontsize="12pt" \
-	--latex-engine=lualatex
+	-V colorlinks -V fontsize="12pt" \
+	--latex-engine=pdflatex
 
 all: debug
 
