@@ -107,6 +107,79 @@ void spawn_server(char **argv) {
 }
 ```
 
+Il request handler a sua volta alloca il buffer per la lettura della richiesta, altra memoria per operazioni interne, discrimina in base ai metodi supportati, e innesca la logica relativa al metodo specifico `HTTP` che è stato invocato.
+
+```c
+void request_handler(int sock_fd, int keepalive) {
+	[...]
+	method = whichreq(buf);
+	if (!strncmp(&method[0], "get", 3)) {
+		handle_get(sock_fd, buf, ext, headers);
+	} else if (!strncmp(&method[0], "head", 4)) {
+		handle_head(sock_fd, buf, ext);
+	} else {
+		handle_unsupported_method(sock_fd, buf);
+	}
+}
+```
+
+All'interno del request handler generico, viene anche invocata una funzione che parsa gli header della richiesta necessari al funzionamento del webserver e memorizza il tutto in una struttura dati di tipo key-value (funzione peraltro esternalizzata in un modulo a parte):
+
+```c
+char * hlook(char *label, char *buf) {
+	char *tk, *str, *dbuf;
+	dbuf = str = strdup(buf);
+	while ((tk = strsep(&str, "\n")) != NULL) {
+		if (!strncmp(&tk[0], label, strlen(label))) {
+			strsep(&tk, ": ");
+			free(dbuf);
+			return strdup(tk);
+		}
+	}
+	free(dbuf);
+	return "";
+}
+```
+
+All'interno dell'handler `handle_get` troviamo uno degli ingranaggi fondamentali, ovvero il plug relativo al meccanismo di caching, esternalizzato in una funzione:
+
+```c
+int cachehit(char *buf, hcontainer *headers) {
+	[...]
+    if (access(toaccess, F_OK | R_OK) == 0) {
+        logger(LOG, "Cache hit!", "serving the cached file");
+	} else {
+        logger(LOG, "Cache didn't hit", "still need to convert the file");
+        convert_img(buf, cachedfn, q);
+    }
+
+    strcpy(buf, cachedfn);
+	return 1;
+}
+```
+
+Se viene rilevata la necessità di dover servire un file dalla cache, viene modificato il buffer che verrà poi consumato ancora dall'handler in modo da eseguire un aliasing tra il file richiesto e la copia in cache. Successivamente, in caso di necessità di immagini con una qualità ridotta, e in caso di assenza di una copia in cache, viene effettuata la conversione on-the-fly attraverso un wrapper parametrizzato del programma `convert`.
+
+```c
+int convert_img(char *source, char *dest, int quality) {
+    char cmd[sizeof(source)+sizeof(dest)+211];
+
+    sprintf(
+        cmd,
+        "convert ./www/%s -quality %d ./cache/%s",
+        source,
+        quality,
+        dest
+    );
+
+    logger(LOG, "RUNNING", cmd);
+
+    system(cmd);
+
+    return 1;
+}
+```
+
 ## Limitazioni riscontrate
 Lorem ipsum
 
