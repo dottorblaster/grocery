@@ -3,7 +3,7 @@ BINARY := grocery
 DEBUG_PORT := 8080
 
 CC := gcc
-CFLAGS := -Wextra -Wall
+CFLAGS := -Wextra -Wall -O3
 DEBUG := -g
 
 debug:
