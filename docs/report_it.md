@@ -180,6 +180,127 @@ int convert_img(char *source, char *dest, int quality) {
 }
 ```
 
+Una volta fatti i dovuti calcoli rispetto a caching, presenza del file, e condizioni a contorno, viene istanziato e assegnato il file descriptor relativo al file su disco, e il file viene servito leggendo in sequenza dal disco mentre il buffer fa da trasporto. Con una `sprintf` viene scritto l'header della risposta `HTTP`, mentre attraverso la `read` poi viene servito il resto del file come body della response.
+
+```c
+void handle_get(int sock_fd, char *buf, char *ext, hcontainer *headers) {
+	[...]
+	if ((fle = open(fn, O_RDONLY)) == -1) {
+		logger(NOTFOUND, "not found", &buf[5]);
+		handle_error(NOTFOUND, sock_fd);
+	}
+
+	logger(LOG, "GET", &buf[5]);
+	ln = (long)lseek(fle, (off_t)0, SEEK_END);
+	lseek(fle, (off_t)0, SEEK_SET);
+	sprintf(
+		buf,
+		"HTTP/1.1 200 OK\nServer: grocery/%d.0\nContent-Length: %ld\nConnection: %s\nContent-Type: %s\n\n",
+		VERSION,
+		ln,
+		(strlen(headers[1].val) != 0 && !strncmp(&headers[1].val[1], "close", 5)) ? "close" : "keep-alive",
+		ext
+	);
+	write(sock_fd, buf, strlen(buf));
+
+	while ((rt = read(fle, buf, BUFSIZE)) > 0) {
+		write(sock_fd, buf, rt);
+	}
+
+	close(fle);
+	[...]
+}
+```
+
+Una cosa interessante da notare è che dell'eseguibile risultante dalla compilazione di Grocery è stata fatta la profilazione delle funzioni tramite Valgrind per identificare eventuali memory leak, ed il check è stato negativo rispetto a queste criticità.
+
+## Prestazioni
+Questi i risultati di un'analisi prestazionale eseguita con `httperf`. Di seguito il comando utilizzato:
+
+```sh
+httperf --server localhost --port 8080 --num-conns 10000 --rate 300 --timeout 1
+```
+
+Il comando richiede di:
+- mandare 10.000 richieste;
+- mandarne 300 al secondo;
+- avere come soglia di timeout un secondo.
+
+```
+Total: connections 10000 requests 10000 replies 10000 test-duration 33.332 s
+
+Connection rate: 300.0 conn/s (3.3 ms/conn, <=17 concurrent connections)
+Connection time [ms]: min 1.1 avg 1.5 max 54.3 median 1.5 stddev 1.5
+Connection time [ms]: connect 0.1
+Connection length [replies/conn]: 1.000
+
+Request rate: 300.0 req/s (3.3 ms/req)
+Request size [B]: 62.0
+
+Reply rate [replies/s]: min 299.8 avg 300.0 max 300.0 stddev 0.1 (6 samples)
+Reply time [ms]: response 1.1 transfer 0.3
+Reply size [B]: header 102.0 content 7.0 footer 0.0 (total 109.0)
+Reply status: 1xx=0 2xx=10000 3xx=0 4xx=0 5xx=0
+
+CPU time [s]: user 6.12 system 27.11 (user 18.4% system 81.3% total 99.7%)
+Net I/O: 50.1 KB/s (0.4*10^6 bps)
+
+Errors: total 0 client-timo 0 socket-timo 0 connrefused 0 connreset 0
+Errors: fd-unavail 0 addrunavail 0 ftab-full 0 other 0
+```
+
+Di seguito invece le prestazioni di un server **Nginx** eseguito sulla medesima piattaforma, sulla medesima macchina:
+
+```
+Total: connections 10000 requests 10000 replies 10000 test-duration 33.331 s
+
+Connection rate: 300.0 conn/s (3.3 ms/conn, <=5 concurrent connections)
+Connection time [ms]: min 0.4 avg 0.7 max 13.4 median 0.5 stddev 0.2
+Connection time [ms]: connect 0.1
+Connection length [replies/conn]: 1.000
+
+Request rate: 300.0 req/s (3.3 ms/req)
+Request size [B]: 62.0
+
+Reply rate [replies/s]: min 300.0 avg 300.0 max 300.0 stddev 0.0 (6 samples)
+Reply time [ms]: response 0.6 transfer 0.0
+Reply size [B]: header 238.0 content 612.0 footer 0.0 (total 850.0)
+Reply status: 1xx=0 2xx=10000 3xx=0 4xx=0 5xx=0
+
+CPU time [s]: user 7.03 system 26.20 (user 21.1% system 78.6% total 99.7%)
+Net I/O: 267.2 KB/s (2.2*10^6 bps)
+
+Errors: total 0 client-timo 0 socket-timo 0 connrefused 0 connreset 0
+Errors: fd-unavail 0 addrunavail 0 ftab-full 0 other 0
+```
+
+Come è lampante anche senza un'analisi approfondita, i tempi di risposta di Nginx sono circa la metà di quelli di Grocery. L'aspetto positivo è che a fronte dei tempi di risposta nettamente superiori di Nginx, comunque il CPU time passato tra user mode e system mode tra i due è pressoché lo stesso, con un tempo relativo a Grocery leggermente maggiore nella parte system.
+
+Ricompilando il binario di Grocery con `-O3` quindi alzando il livello di ottimizzazione, abbiamo però una notevole diminuzione delle connessioni concorrenti e del tempo di connessione medio, collegato a una notevolissima diminuzione dei massimi:
+
+```
+Total: connections 10000 requests 10000 replies 10000 test-duration 33.333 s
+
+Connection rate: 300.0 conn/s (3.3 ms/conn, <=6 concurrent connections)
+Connection time [ms]: min 1.1 avg 1.4 max 18.8 median 1.5 stddev 0.5
+Connection time [ms]: connect 0.1
+Connection length [replies/conn]: 1.000
+
+Request rate: 300.0 req/s (3.3 ms/req)
+Request size [B]: 62.0
+
+Reply rate [replies/s]: min 299.8 avg 300.0 max 300.0 stddev 0.1 (6 samples)
+Reply time [ms]: response 1.0 transfer 0.4
+Reply size [B]: header 102.0 content 7.0 footer 0.0 (total 109.0)
+Reply status: 1xx=0 2xx=10000 3xx=0 4xx=0 5xx=0
+
+CPU time [s]: user 6.15 system 27.09 (user 18.5% system 81.3% total 99.7%)
+Net I/O: 50.1 KB/s (0.4*10^6 bps)
+
+Errors: total 0 client-timo 0 socket-timo 0 connrefused 0 connreset 0
+Errors: fd-unavail 0 addrunavail 0 ftab-full 0 other 0
+```
+
 ## Limitazioni riscontrate
 Lorem ipsum
 
