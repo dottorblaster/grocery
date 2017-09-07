@@ -302,7 +302,9 @@ Errors: fd-unavail 0 addrunavail 0 ftab-full 0 other 0
 ```
 
 ## Limitazioni riscontrate
-Lorem ipsum
+Le limitazioni che sono state riscontrate sono esclusivamente relative al preforking, dato che ovviamente il webserver che istanzia Grocery è perfettamente in grado di scalare su un quantitativo di richieste elevato. Quello che risulta in una falla architetturale è l'arrivo di un numero di richieste superiore al migliaio per secondo, che causa parecchie connessioni rimaste appese lato client. Questo ovviamente perché si verifica un numero di file descriptor aperti superiore a quello che il sistema operativo è "programmato per gestire", nel senso più largo del termine. Questo problema è risolvibile in parte modificando le limitazioni relative ai file descriptor per sessione, ma è comunque una non-soluzione a quella che in definitiva è la criticità relativa al design scelto.
+
+
 
 ## Piattaforma
 Lorem ipsum
