@@ -304,10 +304,106 @@ Errors: fd-unavail 0 addrunavail 0 ftab-full 0 other 0
 ## Limitazioni riscontrate
 Le limitazioni che sono state riscontrate sono esclusivamente relative al preforking, dato che ovviamente il webserver che istanzia Grocery è perfettamente in grado di scalare su un quantitativo di richieste elevato. Quello che risulta in una falla architetturale è l'arrivo di un numero di richieste superiore al migliaio per secondo, che causa parecchie connessioni rimaste appese lato client. Questo ovviamente perché si verifica un numero di file descriptor aperti superiore a quello che il sistema operativo è "programmato per gestire", nel senso più largo del termine. Questo problema è risolvibile in parte modificando le limitazioni relative ai file descriptor per sessione, ma è comunque una non-soluzione a quella che in definitiva è la criticità relativa al design scelto.
 
-
-
 ## Piattaforma
-Lorem ipsum
+Grocery è stato sviluppato per essere eseguito su una piattaforma facente uso del sistema operativo Linux con (circa) qualsiasi versione delle GLibC. Per lo sviluppo sono stati utilizzati prevalentemente due sistemi operativi:
+
+- Arch Linux, distribuzione Linux orientata agli approcci bleeding edge e KISS, dotata di kernel Linux 4.12;
+- MacOS Sierra 10.12, utilizzato anche per il testing di interoperabilità date le metodologie scelte per il deploy dell'applicazione.
+
+Come soluzione per l'esecuzione e l'installazione è stato scelto di utilizzare **Docker**, in modo da poter portare il software su piattaforme diverse da Linux senza doverne modificare il codice e soprattutto permettendo un'installazione senza sforzo su qualsiasi tipo di sistema operativo che supporti la containerizzazione di processi tramite questo tool.
+
+È stato quindi usato **Docker 17** per installare Grocery dentro un container secondo le direttive immesse nel Dockerfile di cui segue il contenuto:
+
+```dockerfile
+FROM alpine:3.6
+
+RUN apk update
+RUN apk add --no-cache build-base imagemagick
+
+RUN mkdir /grocery
+RUN mkdir /grocery/www
+RUN mkdir /grocery/cache
+
+ADD . /grocery
+
+WORKDIR /grocery
+RUN make clean release
+
+RUN apk del build-base
+
+VOLUME /grocery/www
+
+CMD ["./grocery", "8080"]
+```
+
+La sintassi dei Dockerfile è abbastanza verbosa e autoesplicativa di suo quindi non ci fermeremo ad analizzarla. Quello che serve sapere è che il container viene creato a partire da Alpine Linux, una distribuzione Linux minimale creata appositamente per occupare poco spazio e ottima per questo motivo per costruire container leggeri ed efficienti.
+
+Tramite il gestore di pacchetti successivamente vengono installate le dipendenze di compilazione e di esecuzione di Grocery, che andremo a listare in seguito, e viene copiato il codice sorgente dentro il container perché possa essere compilato attraverso `make`. Successivamente viene lanciato l'effettivo goal di `make` per far partire la build, che una volta compilata dà luogo ad un eseguibile che viene poi fissato per il lancio alla partenza del container, insieme all'export del volume che consente al container di comunicare con il filesystem locale. È compito dell'utente in un secondo momento fornire una directory che Docker possa considerare come quella da cui Grocery deve leggere i file.
+
+Per facilitare lo sviluppo e il deploy del programma, è stato utilizzato il task runner `make`, con vari comandi in base a quale build si voglia ottenere (una build di sviluppo con i simboli di debug, o una build di produzione di cui viene fatto strip di ogni orpello), e in realtà anche i comandi per costruire i container nonché quelli per compilare questo file Markdown.
+
+Il Makefile utilizzato è il seguente:
+
+```makefile
+SOURCE := ./src/*.c
+BINARY := grocery
+DEBUG_PORT := 8080
+
+CC := gcc
+CFLAGS := -Wextra -Wall
+OPTIMIZE := -O3
+DEBUG := -g
+
+debug:
+	$(CC) $(SOURCE) $(CFLAGS) $(DEBUG) -o grocery
+
+release:
+	$(CC) $(SOURCE) $(CFLAGS) $(OPTIMIZE) -o grocery
+
+run:
+	./$(BINARY) $(DEBUG_PORT)
+
+build_docker:
+	sudo docker build -t grocery -f docker/Dockerfile .
+
+docker_run:
+	sudo docker run -d -P -p 8080:8080 \
+        -v $(shell pwd)/www:/grocery/www grocery
+
+build_docker_test:
+	sudo docker build -t grocery_test -f docker/Dockerfile.test .
+
+docker_test:
+	sudo docker run -d -P -p 8080:8080 \
+        --name grtest -v $(shell pwd):/grocery grocery_test \
+        make debug run
+
+markdown_to_pdf:
+	pandoc -o docs/relazione.pdf docs/report_it.md \
+	-V colorlinks -V fontsize="12pt" \
+	--latex-engine=pdflatex
+
+all: debug
+
+clean:
+	rm -rf *.o grocery grocery.dSYM
+```
+
+Le dipendenze per il corretto funzionamento di Gorcery sono solamente:
+
+- GLibC o equivalenti (funzionamento testato anche con `muslc`)
+- Un kernel Linux
+- Imagemagick, specialmente il programma `convert`
+- Un filesystem con supporto ai nomi utf8 e case sensitive.
+
+Come dipendenze di compilazione invece abbiamo:
+
+- `make`
+- `gcc`
+- `docker` (se si vuole costruire il container)
+- `pandoc` (per la transizione da Markdown a PDF)
+
+Fortunatamente gran parte dei tool utilizzati (non è un caso) fanno parte della toolchain di sviluppo base del sistema operativo, quindi vengono inclusi con relativa grossa facilità all'interno della propria distribuzione software di scelta senza troppo sforzo, quando non sono presenti in maniera predefinita.
 
 ## Installazione e configurazione
 Lorem ipsum
