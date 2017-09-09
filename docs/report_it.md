@@ -217,7 +217,7 @@ Una cosa interessante da notare è che dell'eseguibile risultante dalla compilaz
 ## Prestazioni
 Questi i risultati di un'analisi prestazionale eseguita con `httperf`. Di seguito il comando utilizzato:
 
-```sh
+```bash
 httperf --server localhost --port 8080 --num-conns 10000 --rate 300 --timeout 1
 ```
 
@@ -414,5 +414,28 @@ Ci sono due modi sostanzialmente per avere un setup di Grocery funzionante su un
 Per comodità prenderemo come riferimento una generica release di Ubuntu.
 
 ### Installazione di Grocery su Ubuntu tramite Docker
+Per avviare un'istanza di Grocery su una qualsiasi macchina possiamo installare Docker:
+
+```bash
+$ sudo apt-get install docker.io
+```
+
+E successivamente lanciare il comando che si occupa di lanciare l'immagine del container con il binding tra la porta del container esposta e una porta locale a piacere, e una directory da cui leggere i file montata come volume rispetto al mountpoint del container dove effettivamente l'eseguibile fa le sue letture (il che rende tutto configurabile via CLI):
+
+```bash
+$ sudo docker run -d -P -p 8080:8080 -v /home/user/www:/grocery/www
+dottorblaster/grocery
+```
 
 ### Installazione di Grocery su Ubuntu tramite compilazione del codice
+Tramite una serie di comandi da shell (genericamente una Bash) andiamo ad installare le dipendenze di compilazione e di esecuzione, clonando poi il repository Git dove si trova il codice, spostandoci nella directory dove deve avvenire la build ed avviando la build con il comando `make`. In seguito possiamo avviare Grocery solo chiamando l'eseguibile e passando come argomento una porta su cui far avvenire il bind:
+
+```bash
+$ sudo apt-get install build-essential git imagemagick
+$ git clone git@github.com:dottorblaster/grocery.git
+$ cd grocery
+$ make
+$ ./grocery 8080
+```
+
+Il software tratterà la sottocartella `www` come cartella dentro la quale cercare i file che vengono richiesti dagli utenti. Se tale directory non è presente, otterremo un errore.
