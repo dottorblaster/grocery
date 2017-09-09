@@ -406,4 +406,13 @@ Come dipendenze di compilazione invece abbiamo:
 Fortunatamente gran parte dei tool utilizzati (non è un caso) fanno parte della toolchain di sviluppo base del sistema operativo, quindi vengono inclusi con relativa grossa facilità all'interno della propria distribuzione software di scelta senza troppo sforzo, quando non sono presenti in maniera predefinita.
 
 ## Installazione e configurazione
-Lorem ipsum
+Ci sono due modi sostanzialmente per avere un setup di Grocery funzionante su una macchina:
+
+- Usare Docker o equivalenti per avere un container con un volume montato sul filesystem da cui leggere i file;
+- Compilare l'eseguibile a partire dal codice sorgente su una qualsiasi distribuzione Linux.
+
+Per comodità prenderemo come riferimento una generica release di Ubuntu.
+
+### Installazione di Grocery su Ubuntu tramite Docker
+
+### Installazione di Grocery su Ubuntu tramite compilazione del codice
