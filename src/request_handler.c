@@ -6,6 +6,10 @@ char * whichreq(char *buf) {
 	return "other";
 }
 
+void handle_unsupported_method(int sock_fd, char *buf) {
+	// TODO
+}
+
 void handle_get(int sock_fd, char *buf, char *ext, hcontainer *headers) {
 	int fle;
 	long ln, rt;
