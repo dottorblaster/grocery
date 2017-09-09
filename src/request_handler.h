@@ -11,5 +11,6 @@
 #include "conversion.h"
 
 char * whichreq(char *buf);
+void handle_unsupported_method(int sock_fd, char *buf);
 void handle_get(int sock_fd, char *buf, char *ext, hcontainer *headers);
 void request_handler(int fd, int keepalive);
