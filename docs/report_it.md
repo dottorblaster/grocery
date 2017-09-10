@@ -448,4 +448,5 @@ $ ./grocery 8080
 Il software tratterà la sottocartella `www` come cartella dentro la quale cercare i file che vengono richiesti dagli utenti. Se tale directory non è presente, otterremo un errore.
 
 ## Esempi di funzionamento
+Di seguito alcuni esempi di funzionamento. A parte banali test tramite browser, la parte di adattamento delle risorse viene testata tramite `httpie` che permette facilmente di inviare chiamate HTTP con header personalizzati.
 
