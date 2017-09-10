@@ -97,6 +97,7 @@ void request_handler(int sock_fd, int keepalive) {
 		char *ext;
 		char *filetype;
 	} extensions [] = {
+		{"css", "text/css"	},
 		{"gif", "image/gif" },
 		{"jpg", "image/jpg" },
 		{"jpeg","image/jpeg"},
