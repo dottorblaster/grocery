@@ -7,7 +7,14 @@ char * whichreq(char *buf) {
 }
 
 void handle_unsupported_method(int sock_fd, char *buf) {
-	// TODO
+	sprintf(
+		buf,
+		"HTTP/1.1 405 Method Not Allowed\nServer: grocery/%d.0\n\nConnection: close\nAllow: GET, HEAD\n\n",
+		VERSION
+	);
+	write(sock_fd, buf, strlen(buf));
+
+	exit(0);
 }
 
 void handle_get(int sock_fd, char *buf, char *ext, hcontainer *headers) {
@@ -168,6 +175,6 @@ void request_handler(int sock_fd, int keepalive) {
 	} else if (!strncmp(&method[0], "head", 4)) {
 		handle_head(sock_fd, buf, ext);
 	} else {
-	//	handle_unsupported_method(/* params here */);
+		handle_unsupported_method(sock_fd, buf);
 	}
 }
