@@ -405,6 +405,13 @@ Come dipendenze di compilazione invece abbiamo:
 
 Fortunatamente gran parte dei tool utilizzati (non è un caso) fanno parte della toolchain di sviluppo base del sistema operativo, quindi vengono inclusi con relativa grossa facilità all'interno della propria distribuzione software di scelta senza troppo sforzo, quando non sono presenti in maniera predefinita.
 
+Per il testing, viceversa, sono stati usati sia browser standard che tool a riga di comando per inviare chiamate HTTP personalizzate:
+
+- [Mozilla Firefox](https://www.mozilla.org/it/firefox/)
+- [Google Chrome](https://www.chromium.org/)
+- [cURL](https://curl.haxx.se/)
+- [Httpie](https://httpie.org/)
+
 ## Installazione e configurazione
 Ci sono due modi sostanzialmente per avere un setup di Grocery funzionante su una macchina:
 
@@ -439,3 +446,6 @@ $ ./grocery 8080
 ```
 
 Il software tratterà la sottocartella `www` come cartella dentro la quale cercare i file che vengono richiesti dagli utenti. Se tale directory non è presente, otterremo un errore.
+
+## Esempi di funzionamento
+
