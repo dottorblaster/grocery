@@ -448,5 +448,111 @@ $ ./grocery 8080
 Il software tratterà la sottocartella `www` come cartella dentro la quale cercare i file che vengono richiesti dagli utenti. Se tale directory non è presente, otterremo un errore.
 
 ## Esempi di funzionamento
-Di seguito alcuni esempi di funzionamento. A parte banali test tramite browser, la parte di adattamento delle risorse viene testata tramite `httpie` che permette facilmente di inviare chiamate HTTP con header personalizzati.
+Di seguito alcuni esempi di funzionamento. A parte banali test tramite browser, la parte di adattamento delle risorse viene testata tramite `httpie` che permette facilmente di inviare chiamate HTTP con header personalizzati. Proviamo a richiedere una pagina statica come primo test.
 
+Attraverso il browser possiamo testare anche che venga renderizzato l'HTML correttamente con lo stile grafico associato tramite il foglio di stile CSS dichiarato nell'header.
+
+![Firefox renderizza la index.html servita da Grocery](docs/img/firefox.png)
+
+Da riga di comando possiamo effettuare il medesimo test:
+
+```html
+$ http get localhost:8080
+HTTP/1.1 200 OK
+Connection: keep-alive
+Content-Length: 201
+Content-Type: text/html
+Server: grocery/1.0
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="style.css">
+  </head>
+  <body>
+    <h1>Hello World!</h1>
+    <p>From Grocery webserver with love.</p>
+  </body>
+</html>
+```
+
+Possiamo richiedere una immagine, che verrà servita esattamente come il file HTML di poc'anzi:
+
+![Un'immagine di test, servita senza problemi](docs/img/firefox-serving-enea.png)
+
+Andiamo a ripetere il test usando la CLI e concentrandoci sull'header della risposta:
+
+```shell
+$ http get localhost:8080/image.jpg
+HTTP/1.1 200 OK
+Connection: keep-alive
+Content-Length: 245952
+Content-Type: image/jpg
+Server: grocery/1.0
+
+
+
++-----------------------------------------+
+| NOTE: binary data not shown in terminal |
++-----------------------------------------+
+```
+
+Come possiamo vedere, la risposta è data in forma di 200 OK con un attributo `Content-Length` pari a 245952. Proviamo a rifare la stessa richiesta con un header Accept che abbassi la qualità dell'immagine in risposta:
+
+```shell
+$ http get localhost:8080/image.jpg 'Accept: image/png;q=0.1'
+HTTP/1.1 200 OK
+Connection: keep-alive
+Content-Length: 67810
+Content-Type: image/jpg
+Server: grocery/1.0
+
+
+
++-----------------------------------------+
+| NOTE: binary data not shown in terminal |
++-----------------------------------------+
+```
+
+Da questa risposta possiamo notare il medesimo header, con una variazione: il campo `Content-Length` risulta drasticamente contenuto, dato che abbiamo applicato un fattore di conversione pari al 10%. Questa immagine inoltre è stata salvata nella cache con questo grado di conversione: quando proveremo a rifare questa richiesta, il file sarà servito dal cache layer e non verrà rieffettuata la conversione.
+
+È importante notare che il cache layer memorizza ogni tupla _nome_file - fattore_di_conversione_, quindi per un differente livello di conversione avremo un output differente e naturalmente un ulteriore artefatto nella cache:
+
+```shell
+$ http get localhost:8080/image.jpg 'Accept: image/png;q=0.4'
+HTTP/1.1 200 OK
+Connection: keep-alive
+Content-Length: 170220
+Content-Type: image/jpg
+Server: grocery/1.0
+
+
+
++-----------------------------------------+
+| NOTE: binary data not shown in terminal |
++-----------------------------------------+
+```
+
+Partendo quindi da una struttura del genere per la nostra directory www, contente i nostri file:
+
+```bash
+$ ls -l www
+total 252
+-rw-r--r-- 1 blaster staff 245952 Ago 12 15:09 image.jpg
+-rw-r--r-- 1 blaster staff    201 Set 10 13:59 index.html
+-rw-r--r-- 1 blaster staff     43 Set 10 14:49 style.css
+```
+
+Dopo svariate richieste per il file `image.jpg` di qualità talvolta identica, talvolta differente, abbiamo una cache che riflette le conversioni avvenute:
+
+```bash
+/grocery # ls -l cache
+total 896
+-rw-r--r--    1 root     root         67810 Sep 10 14:07 image.jpg-10
+-rw-r--r--    1 root     root        148803 Sep 10 14:07 image.jpg-30
+-rw-r--r--    1 root     root        170220 Sep 10 15:05 image.jpg-40
+-rw-r--r--    1 root     root        230286 Sep 10 13:40 image.jpg-60
+-rw-r--r--    1 root     root        287867 Sep 10 14:06 image.jpg-80
+```
+
+Tutte conversioni avvenute una volta e che abbassano di parecchio la latenza dovuta alla richiesta di un file già convertito in passato.
