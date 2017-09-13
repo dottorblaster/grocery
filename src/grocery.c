@@ -1,7 +1,7 @@
 #include "grocery.h"
 
 void print_help() {
-	printf("This is a simple help string");
+	printf("Usage: ./grocery 8080");
 }
 
 void preliminary_checks(int argc, char **argv) {
