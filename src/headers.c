@@ -1,5 +1,7 @@
 #include "headers.h"
 
+// Determine an header's length
+// iterating on the buffer.
 int headers_l(char *buf) {
 	int i, res = 0;
 	for (i = 0; i < BUFSIZE; i++) {
@@ -11,6 +13,9 @@ int headers_l(char *buf) {
 	return res;
 }
 
+// Look for a particular header in the buffer.
+// Takin' a label, the buffer, and iterate on the
+// buffer until we find the Ring.
 char * hlook(char *label, char *buf) {
 	char *tk, *str, *dbuf;
 	dbuf = str = strdup(buf);

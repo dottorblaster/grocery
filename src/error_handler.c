@@ -1,5 +1,8 @@
 #include "error_handler.h"
 
+// Error handler shorthand function.
+// We have a switch case and various writes to the buffer,
+// each one with a static response.
 void handle_error(int type, int socket_fd) {
 	switch(type) {
 		case ERROR:

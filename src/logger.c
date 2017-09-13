@@ -1,5 +1,8 @@
 #include "logger.h"
 
+// Constants-powered logger shorthand function.
+// We print all of our informations to the STDOUT,
+// then to a `grocery.log` plain text file.
 void logger(int type, char *s1, char *s2) {
 	int fd;
 	char logbuffer[BUFSIZE*2];

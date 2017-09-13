@@ -1,9 +1,13 @@
 #include "grocery.h"
 
+// Prints an help string if needed.
 void print_help() {
 	printf("Usage: ./grocery 8080");
 }
 
+// Preliminary checks for execution.
+// We create the cache directory, and we check for proper arguments.
+// In case we don't meet the requirements, we exit(0).
 void preliminary_checks(int argc, char **argv) {
 	if (argc != 2 || !strcmp(argv[1], "-h")) {
 		print_help();
@@ -23,6 +27,7 @@ void preliminary_checks(int argc, char **argv) {
 	}
 }
 
+// Spawning the server
 void spawn_server(char **argv) {
 	int pid, lfd, sock_fd, optv;
 	static struct sockaddr_in cli;
@@ -30,7 +35,7 @@ void spawn_server(char **argv) {
 
 	socklen_t l;
 
-	/* Just ignore SIGCHLD and SIGHUP, we don't care. */
+	// Just ignore SIGCHLD and SIGHUP, we don't care.
 	signal(SIGHUP, SIG_IGN);
 	signal(SIGCHLD, SIG_IGN);
 
@@ -47,9 +52,12 @@ void spawn_server(char **argv) {
 
 	printf("grocery listening on port %s\n", argv[1]);
 
+	// Endless loop to accept requests and
+	// dispatch new child processes
 	for (;;) {
 		l = sizeof(cli);
 
+		// Accept incoming connections, fork and handle requests
 		if ((sock_fd = accept(lfd, (struct sockaddr *)&cli, &l)) < 0) { logger(ERROR, "Error during a syscall", "accept"); }
 
 		if ((pid = fork()) < 0) {
@@ -57,6 +65,10 @@ void spawn_server(char **argv) {
 		}
 		else {
 			if (pid == 0) {
+				// Properly handle requests passing the socket file descriptor
+				// as an argument. The second argument is the keepalive one.
+				// Basing a logic upon this lets us discriminate about requests
+				// coming from keepalive connections or not.
 				request_handler(sock_fd, 0);
 			} else {
 				close(sock_fd);
@@ -65,6 +77,9 @@ void spawn_server(char **argv) {
 	}
 }
 
+// Main function.
+// We run our preliminary checks, then we spawn the server
+// passing the argv arguments array to bind properly
 int main(int argc, char **argv) {
 	preliminary_checks(argc, argv);
 	spawn_server(argv);
