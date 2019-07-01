@@ -1,8 +1,6 @@
 # grocery [![Build Status](https://travis-ci.org/dottorblaster/grocery.svg?branch=master)](https://travis-ci.org/dottorblaster/grocery)
 Tiny C webserver with resource adaption features.
 
-![Grocery serving me and Enea](./docs/img/firefox-serving-enea.png)
-
 ## Dependencies
 To execute grocery you need:
 

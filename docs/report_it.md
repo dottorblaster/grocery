@@ -476,9 +476,7 @@ Server: grocery/1.0
 </html>
 ```
 
-Possiamo richiedere una immagine, che verrà servita esattamente come il file HTML di poc'anzi:
-
-![Un'immagine di test, servita senza problemi](docs/img/firefox-serving-enea.png)
+Possiamo richiedere una immagine, che verrà servita esattamente come il file HTML di poc'anzi.
 
 Andiamo a ripetere il test usando la CLI e concentrandoci sull'header della risposta:
 
